@@ -1,0 +1,18 @@
+/* 
+Функция, возвращающая диапазон дат, разбитый помесячно (для обхода сэмплинга или ограничений на кол-во выгружаемых строк)
+*/
+
+let
+    Источник = (startDate as text) => let
+   
+    Источник = List.Dates((Date.FromText(startDate) as date), (Number.From((DateTime.Date(DateTime.LocalNow())-(Date.FromText(startDate) as date)))), #duration(1, 0, 0, 0)),
+    #"Преобразовано в таблицу" = Table.FromList(Источник, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+    #"Переименованные столбцы" = Table.RenameColumns(#"Преобразовано в таблицу",{{"Column1", "Date"}}),
+    #"Измененный тип" = Table.TransformColumnTypes(#"Переименованные столбцы",{{"Date", type date}}),
+    #"Добавлен пользовательский объект3" = Table.AddColumn(#"Измененный тип", "startMonth", each Date.ToText((Date.StartOfMonth([Date])), "yyyy-MM-dd")),
+    #"Добавлен пользовательский объект4" = Table.AddColumn(#"Добавлен пользовательский объект3", "endMonth", each Date.ToText((Date.EndOfMonth([Date])), "yyyy-MM-dd")),
+    #"Удаленные дубликаты" = Table.Distinct(#"Добавлен пользовательский объект4", {"startMonth"})
+in
+    #"Удаленные дубликаты"
+in
+    Источник
