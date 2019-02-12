@@ -1,0 +1,16 @@
+let
+    Source = (startDate as text) => let
+    
+    Источник = List.Dates((Date.FromText(startDate) as date), (Number.From((DateTime.Date(DateTime.LocalNow())-(Date.FromText(startDate) as date)))), #duration(1, 0, 0, 0)),
+    #"Преобразовано в таблицу" = Table.FromList(Источник, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+        #"Переименованные столбцы" = Table.RenameColumns(#"Преобразовано в таблицу",{{"Column1", "Date"}}),
+        #"Changed Type" = Table.TransformColumnTypes(#"Переименованные столбцы",{{"Date", type text}}),
+        #"Added Custom" = Table.AddColumn(#"Changed Type", "Year", each Date.Year(Date.FromText([Date]))),
+        #"Inserted Text Between Delimiters" = Table.AddColumn(#"Added Custom", "Text Between Delimiters", each Text.BetweenDelimiters([Date], ".", "."), type text),
+        #"Renamed Columns" = Table.RenameColumns(#"Inserted Text Between Delimiters",{{"Text Between Delimiters", "Month"}}),
+        #"Merged Columns" = Table.CombineColumns(Table.TransformColumnTypes(#"Renamed Columns", {{"Year", type text}, {"Month", type text}}, "ru-RU"),{"Year", "Month"},Combiner.CombineTextByDelimiter("", QuoteStyle.None),"MonthOfYear"),
+        #"Removed Duplicates" = Table.Distinct(#"Merged Columns", {"MonthOfYear"})
+    in
+        #"Removed Duplicates"
+in
+    Source
