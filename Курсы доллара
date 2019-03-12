@@ -1,0 +1,8 @@
+let
+    Source = Xml.Tables(Web.Contents("http://www.cbr.ru/scripts/XML_dynamic.asp?date_req1=26/01/2019&date_req2=12/03/2019&VAL_NM_RQ=R01235")),
+    #"Removed Columns" = Table.RemoveColumns(Source,{"Attribute:DateRange1", "Attribute:DateRange2", "Attribute:name", "Attribute:ID"}),
+    #"Expanded Record" = Table.ExpandTableColumn(#"Removed Columns", "Record", {"Value", "Attribute:Date"}, {"Value", "Attribute:Date"}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Expanded Record",{{"Attribute:Date", type date}}),
+    #"Sorted Rows" = Table.Sort(#"Changed Type",{{"Attribute:Date", Order.Descending}})
+in
+    #"Sorted Rows"
